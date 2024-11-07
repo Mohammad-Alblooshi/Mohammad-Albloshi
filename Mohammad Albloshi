@@ -1,0 +1,263 @@
+from enum import Enum
+
+class Genre(Enum):
+    FICTION = "Fiction"
+    NON_FICTION = "Non-Fiction"
+    SCI_FI = "Sci-Fi"
+    FANTASY = "Fantasy"
+
+class EBook:
+    def __init__(self, title, author, publication_date, genre, price):
+        self.__title = title
+        self.__author = author
+        self.__publication_date = publication_date
+        self.__genre = genre
+        self.__price = price
+
+    def get_title(self):
+        return self.__title
+
+    def set_title(self, title):
+        self.__title = title
+
+    def get_author(self):
+        return self.__author
+
+    def set_author(self, author):
+        self.__author = author
+
+    def get_publication_date(self):
+        return self.__publication_date
+
+    def set_publication_date(self, publication_date):
+        self.__publication_date = publication_date
+
+    def get_genre(self):
+        return self.__genre
+
+    def set_genre(self, genre):
+        self.__genre = genre
+
+    def get_price(self):
+        return self.__price
+
+    def set_price(self, price):
+        self.__price = price
+
+    def _str_(self):
+        return f"EBook(Title: {self.__title}, Author: {self.__author}, Price: {self.__price})"
+
+class ShoppingCart:
+    def __init__(self, items=None):
+        self.__items = items if items else []
+
+    def add_item(self, ebook):
+        self.__items.append(ebook)
+
+    def remove_item(self, ebook):
+        self.__items.remove(ebook)
+
+    def get_items(self):
+        return self.__items
+
+    def set_items(self, items):
+        self.__items = items
+
+    def _str_(self):
+        return f"ShoppingCart({len(self.__items)} items)"
+
+class Customer:
+    def __init__(self, name, contact_info, is_loyalty_member):
+        self.__name = name
+        self.__contact_info = contact_info
+        self.__is_loyalty_member = is_loyalty_member
+
+    def get_name(self):
+        return self.__name
+
+    def set_name(self, name):
+        self.__name = name
+
+    def get_contact_info(self):
+        return self.__contact_info
+
+    def set_contact_info(self, contact_info):
+        self.__contact_info = contact_info
+
+    def get_is_loyalty_member(self):
+        return self.__is_loyalty_member
+
+    def set_is_loyalty_member(self, is_loyalty_member):
+        self.__is_loyalty_member = is_loyalty_member
+
+    def _str_(self):
+        return f"Customer(Name: {self.__name})"
+
+class Discount:
+    def __init__(self, loyalty_discount, bulk_discount):
+        self.__loyalty_discount = loyalty_discount  # Percentage discount for loyalty members
+        self.__bulk_discount = bulk_discount  # Percentage discount for bulk purchases
+
+    # Getter and Setter for loyalty_discount
+    def get_loyalty_discount(self):
+        return self.__loyalty_discount
+
+    def set_loyalty_discount(self, discount):
+        self.__loyalty_discount = discount
+
+    # Getter and Setter for bulk_discount
+    def get_bulk_discount(self):
+        return self.__bulk_discount
+
+    def set_bulk_discount(self, discount):
+        self.__bulk_discount = discount
+
+    # Apply loyalty discount to a given price
+    def apply_loyalty_discount(self, price):
+        discount_amount = price * (self.__loyalty_discount / 100)
+        discounted_price = round(price - discount_amount, 2)  # Rounding to 2 decimal places
+        print(f"Applying loyalty discount: Original price = {price}, "
+              f"Discount = {self.__loyalty_discount}%, Discounted price = {discounted_price}")
+        return discounted_price
+
+     # Apply bulk discount based on quantity
+    def apply_bulk_discount(self, price, quantity):
+        if quantity >= 5:  # Apply bulk discount if quantity is 5 or more
+            discount_amount = price * (self.__bulk_discount / 100)
+            discounted_price = round(price - discount_amount, 2)
+            print(f"Applying bulk discount: Original price = {price}, Quantity = {quantity}, "
+                  f"Discount = {self.__bulk_discount}%, Discounted price = {discounted_price}")
+            return discounted_price
+        else:
+            print(f"No bulk discount applied. Quantity = {quantity} is less than the threshold.")
+            return price
+
+
+class Invoice:
+    def __init__(self, items, total_amount, discount):
+        self.__items = items
+        self.__total_amount = total_amount
+        self.__discount = discount
+
+    def get_items(self):
+        return self.__items
+
+    def set_items(self, items):
+        self.__items = items
+
+    def get_total_amount(self):
+        return self.__total_amount
+
+    def set_total_amount(self, total_amount):
+        self.__total_amount = total_amount
+
+    def get_discount(self):
+        return self.__discount
+
+    def set_discount(self, discount):
+        self.__discount = discount
+
+    def _str_(self):
+        return f"Invoice(Total: {self.__total_amount}, Discount: {self.__discount})"
+
+class Order:
+    def __init__(self, customer, cart, order_date):
+        self.__customer = customer
+        self.__cart = cart
+        self.__order_date = order_date
+        self.__invoice = None
+
+    def generate_invoice(self):
+        items = self.__cart.get_items()
+        total = sum(item.get_price() for item in items)
+        discount = 0  
+        self.__invoice = Invoice(items, total, discount)
+        return self.__invoice
+
+    def _str_(self):
+        return f"Order(Date: {self.__order_date}, Customer: {self.__customer.get_name()})"
+
+# Testing the classes
+if __name__ == "__main__":
+    # Sample data entry using input statements for interactivity
+    customer_name = input("Enter customer name: ")
+    contact_info = input("Enter contact information: ")
+    is_loyalty_member = input("Is the customer a loyalty member? (yes/no): ").lower() == "yes"
+
+    # Create customer
+    customer = Customer(customer_name, contact_info, is_loyalty_member)
+    print(customer._str_())
+
+    # Create a shopping cart and add eBooks
+    cart = ShoppingCart()
+    ebook1 = EBook("Book One", "Author A", "2023-01-01", Genre.FICTION, 19.99)
+    ebook2 = EBook("Book Two", "Author B", "2022-06-15", Genre.SCI_FI, 15.99)
+
+    cart.add_item(ebook1)
+    cart.add_item(ebook2)
+    print(cart._str_())
+
+    # Create an order and generate an invoice
+    order_date = input("Enter the order date (YYYY-MM-DD): ")
+    order = Order(customer, cart, order_date)
+    invoice = order.generate_invoice()
+    print(order._str_())
+    print(invoice._str_())
+
+    # Test cases
+    print("\nRunning Test Cases...\n")
+
+    # Test 1: Customer details
+    assert customer.get_name() == customer_name, "Test Case 1 Failed"
+    assert customer.get_contact_info() == contact_info, "Test Case 1 Failed"
+    assert customer.get_is_loyalty_member() == is_loyalty_member, "Test Case 1 Failed"
+    print("Test Case 1 Passed: Customer details")
+
+    # Test 2: ShoppingCart contents
+    assert len(cart.get_items()) == 2, "Test Case 2 Failed"
+    print("Test Case 2 Passed: ShoppingCart contents")
+
+    # Test 3: EBook price
+    assert ebook1.get_price() == 19.99, "Test Case 3 Failed"
+    print("Test Case 3 Passed: EBook price")
+
+    # Test 4: Order and Invoice generation
+    assert order._str_() == f"Order(Date: {order_date}, Customer: {customer_name})", "Test Case 4 Failed"
+    assert invoice.get_total_amount() == 35.98, "Test Case 4 Failed"
+    print("Test Case 4 Passed: Order and Invoice generation")
+
+    # Test Case 5 Verification
+    discount = Discount(10, 20)  # 10% loyalty, 20% bulk discount
+    price = 19.99
+    discounted_price = discount.apply_loyalty_discount(price)
+    assert discounted_price == 17.99, "Test Case 5 Failed: Discount calculation error"
+    print("Test Case 5 Passed: Discount application")
+
+    # Test 6: Bulk discount application
+    bulk_discounted_price = discount.apply_bulk_discount(ebook1.get_price(), 6)
+    assert round(bulk_discounted_price, 2) == round(ebook1.get_price() * 0.8, 2), "Test Case 6 Failed"
+    print("Test Case 6 Passed: Bulk discount application")
+
+    # Test 7: Empty ShoppingCart
+    empty_cart = ShoppingCart()
+    assert len(empty_cart.get_items()) == 0, "Test Case 7 Failed"
+    print("Test Case 7 Passed: Empty ShoppingCart")
+
+    # Test 8: Changing Customer's name
+    new_name = "New Customer Name"
+    customer.set_name(new_name)
+    assert customer.get_name() == new_name, "Test Case 8 Failed"
+    print("Test Case 8 Passed: Changing Customer's name")
+
+    # Test 9: Setting and retrieving items in Invoice
+    invoice.set_items([ebook1])
+    assert len(invoice.get_items()) == 1, "Test Case 9 Failed"
+    print("Test Case 9 Passed: Setting and retrieving items in Invoice")
+
+    # Test 10: Updating EBook genre
+    new_genre = Genre.FANTASY
+    ebook1.set_genre(new_genre)
+    assert ebook1.get_genre() == new_genre, "Test Case 10 Failed"
+    print("Test Case 10 Passed: Updating EBook genre")
+
+    print("\nAll test cases passed!")
